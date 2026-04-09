@@ -1,5 +1,5 @@
 import os
-from groq import Groq
+from groq import AsyncGroq
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -18,4 +18,4 @@ STRICT GUARDRAILS:
 
 client = None
 if api_key and api_key != "your_groq_api_key_here":
-    client = Groq(api_key=api_key)
+    client = AsyncGroq(api_key=api_key)

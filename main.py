@@ -44,7 +44,7 @@ async def chat_endpoint(request: ChatRequest):
             formatted_messages.append({"role": msg.role, "content": msg.content})
         
         # Using Llama 3 8B or 70B via Groq
-        response = bot.client.chat.completions.create(
+        response = await bot.client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=formatted_messages,
             max_tokens=1024
