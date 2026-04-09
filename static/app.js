@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Chat error:', error);
             typingIndicator.style.display = 'none';
-            addMessage(`Sorry, I encountered an error: ${error.message}. Make sure your Gemini API key is configured.`, 'bot-message');
+            addMessage(`Sorry, I encountered an error: ${error.message}. Please check your API key and connection.`, 'bot-message');
         }
     });
 
