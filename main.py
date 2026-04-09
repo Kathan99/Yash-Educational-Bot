@@ -33,24 +33,41 @@ async def root():
 
 @app.post("/api/chat")
 async def chat_endpoint(request: ChatRequest):
-    if bot.client is None:
+    import os
+    import httpx
+    
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
         raise HTTPException(status_code=500, detail="Groq API Key is missing or invalid.")
     
     try:
-        # Prepend the system instruction message
         formatted_messages = [{"role": "system", "content": bot.SYSTEM_INSTRUCTION}]
-        
         for msg in request.messages:
             formatted_messages.append({"role": msg.role, "content": msg.content})
         
-        # Using Llama 3 8B or 70B via Groq
-        response = await bot.client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=formatted_messages,
-            max_tokens=1024
-        )
-        
-        return {"response": response.choices[0].message.content}
+        async with httpx.AsyncClient() as client:
+            res = await client.post(
+                "https://api.groq.com/openai/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "llama-3.3-70b-versatile",
+                    "messages": formatted_messages,
+                    "max_tokens": 1024
+                },
+                timeout=15.0
+            )
+            
+            if res.status_code != 200:
+                # This will extract the exact error message from Groq
+                error_detail = res.text
+                raise Exception(f"Groq API Error {res.status_code}: {error_detail}")
+                
+            data = res.json()
+            return {"response": data["choices"][0]["message"]["content"]}
+            
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
